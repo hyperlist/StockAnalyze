@@ -141,7 +141,6 @@ class DataManager:
         else:
             x = np.array(x)
         y = np.array(y)
-        print(x[0],y[0])
         return x, y
 
     def getTrainingSet(self, train_val_ratio=0.9):
@@ -243,9 +242,36 @@ class DataManager:
         X = np.array(X)
         Sentence = np.array(Sentence)
         Y = np.array(Y)
-
         return X, Sentence, Y
+        
+    def batch_iter(x, y, batch_size=64):
+        """生成批次数据"""
+        data_len = len(x)
+        num_batch = int((data_len - 1) / batch_size) + 1
 
+        indices = np.random.permutation(np.arange(data_len))
+        x_shuffle = x[indices]
+        y_shuffle = y[indices]
+
+        for i in range(num_batch):
+            start_id = i * batch_size
+            end_id = min((i + 1) * batch_size, data_len)
+            yield x_shuffle[start_id:end_id], y_shuffle[start_id:end_id]
+            
+    def nextBatch(self, X, y, start_index):
+        last_index = start_index + self.batch_size
+        X_batch = list(X[start_index:min(last_index, len(X))])
+        y_batch = list(y[start_index:min(last_index, len(X))])
+        if last_index > len(X):
+            left_size = last_index - (len(X))
+            for i in range(left_size):
+                index = np.random.randint(len(X))
+                X_batch.append(X[index])
+                y_batch.append(y[index])
+        X_batch = np.array(X_batch)
+        y_batch = np.array(y_batch)
+        return X_batch, y_batch
+        
     def check_contain_chinese(self, check_str):
         for ch in list(check_str):
             if u'\u4e00' <= ch <= u'\u9fff':

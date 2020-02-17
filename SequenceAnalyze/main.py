@@ -3,7 +3,7 @@ import random
 import numpy as np
 import os
 import re, logging, datetime, csv, time
-from model.Model import Model
+from model.Model import SVM
 from model.DataManager import DataManager
 from model.Configer import Configer
 
@@ -38,7 +38,10 @@ if __name__ == "__main__":
     parser.add_argument('--config_file', default='system.config', help='Configuration File')
     args = parser.parse_args()
     configs = Configer(config_file=args.config_file)
-
+    if not os.path.exists(configs.results_dir):
+        os.makedirs(configs.results_dir)
+    if not os.path.exists(configs.log_dir):
+        os.makedirs(configs.log_dir)
     logger = get_logger(configs.log_dir)
     configs.show_data_summary(logger)
     set_env(configs)
@@ -53,14 +56,18 @@ if __name__ == "__main__":
         except Exception as err:
             print(err)
     else:
-        dataManager = DataManager(configs, logger)
-        model = Model(configs, logger, dataManager)
+        #dataManager = DataManager(configs, logger)
+        model = SVM(configs, logger)
         if mode == 'train':
             logger.info("mode: train")
             model.train()
-        elif mode == 'test':
-            logger.info("mode: test")
-            model.test()
+        elif mode == 'analyze':
+            logger.info("mode: analyze")
+            model.soft_load()
+            urls = csv.DictReader(open(os.path.join(configs.datasets_fold, "stocks.csv"), 'r', encoding='utf-8'))
+            for item in list(urls):
+                file = datetime.datetime.now().strftime('%Y-%m-%d')+'.csv'
+                model.analyze(item['id'],file)
         elif mode == 'interactive_predict':
             logger.info("mode: predict_one")
             model.soft_load()
@@ -69,16 +76,6 @@ if __name__ == "__main__":
                 sentence = input()
                 if sentence == 'exit':
                     break
-                logger.info(sentence)
-                sentence_tokens, entities, entities_type, entities_index = model.predict_single(sentence)
-                logger.info("\nExtracted entities:\n %s\n" % ("\n".join([a + "\t(%s)" % b for a, b in zip(entities, entities_type)])))
+                res = model.predict_single(sentence)
                 
-        elif mode == 'learn':
-            #X_train, y_train, Xs_val, y_val = dataManager.getTrainingSet()
-            dataManager.getTrainingSet()
-            """
-            build_time = time.time()
-            logger.info("model learn start")
-            model.learn()
-            logger.info("model learn end, time consumption:%.2f(min)\n",((time.time() - build_time) / 60))
-            """
+        

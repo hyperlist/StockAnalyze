@@ -13,6 +13,9 @@ class Configer:
         the_item = 'datasets_fold'
         if the_item in config:
             self.datasets_fold = config[the_item]
+        the_item = 'results_dir'
+        if the_item in config:
+            self.results_dir = config[the_item]
         the_item = 'train_file'
         if the_item in config:
             self.train_file = config[the_item]
@@ -25,7 +28,12 @@ class Configer:
         the_item = 'delimiter'
         if the_item in config:
             self.delimiter = config[the_item]
-
+        the_item = 'pos_corpus'
+        if the_item in config:
+            self.pos_corpus=config[the_item]
+        the_item = 'neg_corpus'
+        if the_item in config:
+            self.neg_corpus=config[the_item]
         the_item = 'vocabs_dir'
         if the_item in config:
             self.vocabs_dir = config[the_item]
@@ -136,6 +144,19 @@ class Configer:
         the_item = 'port'
         if the_item in config:
             self.port = config[the_item]
+            
+            
+        self.num_classes = 10  # 类别数
+        self.num_filters = 256  # 卷积核数目
+        self.kernel_size = 5  # 卷积核尺寸
+        self.vocab_size = 5000  # 词汇表达小
+        self.hidden_dim = 128  # 全连接层神经元
+        self.dropout_keep_prob = 0.5  # dropout保留比例
+        self.learning_rate = 1e-3  # 学习率
+        self.batch_size = 64  # 每批训练大小
+        self.num_epochs = 10  # 总迭代轮次
+        self.print_per_batch = 100  # 每多少轮输出一次结果
+        self.save_per_batch = 10  # 每多少轮存入tensorboard
 
     def config_file_to_dict(self, input_file):
         config = {}
