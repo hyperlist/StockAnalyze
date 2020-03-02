@@ -42,7 +42,7 @@ def get_urls(id, filepath):
                     news['ptime'] = datetime.datetime.now().strftime('%Y-') + span[4].get_text()
                     line = json.dumps(dict(news), ensure_ascii=False) + "\n"
                     savejson.write(line)
-                    sent = ' '.join(list(jieba.cut(news['titel'])))
+                    sent = ' '.join(list(jieba.cut(news['titel'].replace(',','，'))))
                     savecsv.write(news['pid'] + ',' + news['ptime'] + ',' + sent + '\n')
             except Exception as err:
                 print(err)
@@ -51,7 +51,7 @@ def get_urls(id, filepath):
     savecsv.close
     
 def clean(filepath):
-    df = pd.read_csv(filepath)
+    df = pd.read_csv(filepath,error_bad_lines=False)
     df.drop_duplicates(subset='id', keep='first', inplace=True)
     df.to_csv(filepath, index=False)
 
