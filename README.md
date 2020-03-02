@@ -7,5 +7,3 @@
     然后运行：
     python main.py
 
-    
-    
